@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Siswa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Form Tambah Siswa</h1>
+        <form id="add-student-form">
+            <input type="text" id="studentName" placeholder="Nama Siswa" required>
+            <button type="submit">Tambah Siswa</button>
+        </form>
+    </div>
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            // Tempelkan konfigurasi Firebase Anda di sini
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Menangani form submission
+        document.getElementById('add-student-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const studentName = document.getElementById('studentName').value;
+
+            // Simpan data siswa ke Firebase
+            database.ref('students/').push({
+                name: studentName
+            }).then(() => {
+                alert('Siswa berhasil ditambahkan!');
+                document.getElementById('studentName').value = '';
+            });
+        });
+    </script>
+</body>
+</html>
