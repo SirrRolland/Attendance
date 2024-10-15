@@ -4,37 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Siswa</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Form Tambah Siswa</h1>
-        <form id="add-student-form">
-            <input type="text" id="studentName" placeholder="Nama Siswa" required>
-            <button type="submit">Tambah Siswa</button>
-        </form>
-    </div>
+    <h1>Tambah Siswa</h1>
+    <form id="add-student-form">
+        <input type="text" id="studentName" placeholder="Nama Siswa" required>
+        <button type="submit">Tambah Siswa</button>
+    </form>
+    <button onclick="window.location.href='index.html'">Kembali</button>
+
     <script>
         // Konfigurasi Firebase
         const firebaseConfig = {
-            // Tempelkan konfigurasi Firebase Anda di sini
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         // Inisialisasi Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Menangani form submission
+        // Menyimpan data siswa ke Firebase
         document.getElementById('add-student-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+            event.preventDefault(); // Mencegah pengiriman formulir standar
             const studentName = document.getElementById('studentName').value;
 
-            // Simpan data siswa ke Firebase
-            database.ref('students/').push({
-                name: studentName
+            const newStudentRef = database.ref('students/').push();
+            newStudentRef.set({
+                name: studentName,
+                leaveRequests: {}
             }).then(() => {
                 alert('Siswa berhasil ditambahkan!');
-                document.getElementById('studentName').value = '';
+                document.getElementById('studentName').value = ''; // Reset input
+            }).catch((error) => {
+                console.error('Error adding student: ', error);
             });
         });
     </script>
