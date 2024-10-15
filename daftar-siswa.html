@@ -1,58 +1,61 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Siswa</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+    <script>
+        const supabaseUrl = 'https://vhqitzlhbfcpdcbbarfx.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocWl0emxoYmZjcGRjYmJhcmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkwMDczMDIsImV4cCI6MjA0NDU4MzMwMn0.nuvs8f31rZbzpaZDtGf998uOcyDZjeYyUyLP_wKSp08';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function ambilDaftarSiswa() {
+            const { data, error } = await supabase
+                .from('siswa') // Ganti dengan nama tabel yang kamu buat
+                .select('*');
+
+            if (error) {
+                console.error("Error:", error);
+            } else {
+                const daftarElement = document.getElementById("daftarSiswa");
+                daftarElement.innerHTML = ''; // Kosongkan daftar sebelum menambah
+                data.forEach(siswa => {
+                    const row = document.createElement("tr");
+                    
+                    const namaCell = document.createElement("td");
+                    namaCell.textContent = siswa.nama;
+                    
+                    const kotaCell = document.createElement("td");
+                    kotaCell.textContent = siswa.asal_kota;
+
+                    const tanggalGabungCell = document.createElement("td");
+                    tanggalGabungCell.textContent = new Date(siswa.tanggal_gabung).toLocaleDateString(); // Format tanggal
+
+                    row.appendChild(namaCell);
+                    row.appendChild(kotaCell);
+                    row.appendChild(tanggalGabungCell);
+                    daftarElement.appendChild(row);
+                });
+            }
+        }
+
+        window.onload = ambilDaftarSiswa;
+    </script>
 </head>
 <body>
     <h1>Daftar Siswa</h1>
-    <div class="table-container">
-        <table class="table" id="siswa-table">
-            <thead>
-                <tr>
-                    <th>Nama Lengkap</th>
-                    <th>Asal Kota</th>
-                    <th>Tanggal Daftar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data Siswa Akan Ditampilkan di Sini -->
-            </tbody>
-        </table>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js"></script>
-    <script>
-        // Inisialisasi Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
-            authDomain: "new-attendance-37fb7.firebaseapp.com",
-            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
-            projectId: "new-attendance-37fb7",
-            storageBucket: "new-attendance-37fb7.appspot.com",
-            messagingSenderId: "112170477897",
-            appId: "1:112170477897:web:b7a39805bf546a1d9ad298"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        const db = firebase.database();
-        db.ref('siswa').once('value', (snapshot) => {
-            const siswaTable = document.getElementById('siswa-table').getElementsByTagName('tbody')[0];
-            snapshot.forEach((childSnapshot) => {
-                const childData = childSnapshot.val();
-                const newRow = siswaTable.insertRow();
-                newRow.innerHTML = `
-                    <td>${childData.nama}</td>
-                    <td>${childData.asalKota}</td>
-                    <td>${childData.tanggalDaftar}</td>
-                `;
-            });
-        });
-    </script>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Asal Kota</th>
+                <th>Tanggal Gabung</th>
+            </tr>
+        </thead>
+        <tbody id="daftarSiswa"></tbody>
+    </table>
+    <button onclick="location.href='index.html'">Kembali</button>
 </body>
 </html>
