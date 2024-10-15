@@ -1,21 +1,31 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Utama Absensi Siswa</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Absensi Siswa</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Selamat Datang di Aplikasi Absensi Siswa</h1>
-        <div class="button-container">
-            <button onclick="location.href='tambah-siswa.html'">Tambah Siswa</button>
-            <button onclick="location.href='daftar-siswa.html'">Daftar Siswa</button>
-            <button onclick="location.href='izin-pulang.html'">Izin Pulang</button>
-            <button onclick="logout()">Keluar</button>
-        </div>
-    </div>
-    <script src="script.js"></script>
+    <h1>Selamat Datang di Absensi Siswa</h1>
+    <button onclick="window.location.href='daftar-siswa.html'">Daftar Siswa</button>
+    <button onclick="window.location.href='izin-pulang.html'">Izin Pulang</button>
+    <button onclick="window.location.href='tambah-siswa.html'">Tambah Siswa</button>
+
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
+            authDomain: "new-attendance-37fb7.firebaseapp.com",
+            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
+            projectId: "new-attendance-37fb7",
+            storageBucket: "new-attendance-37fb7.appspot.com",
+            messagingSenderId: "112170477897",
+            appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </body>
 </html>
