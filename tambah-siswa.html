@@ -9,7 +9,8 @@
 <body>
     <h1>Tambah Siswa</h1>
     <form id="tambah-siswa-form">
-        <input type="text" id="nama-siswa" placeholder="Nama Siswa" required>
+        <input type="text" id="nama-siswa" placeholder="Nama Lengkap" required>
+        <input type="text" id="asal-kota" placeholder="Asal Kota" required>
         <button type="submit">Tambah</button>
     </form>
 
@@ -27,7 +28,43 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+
+        document.getElementById("tambah-siswa-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const namaSiswa = document.getElementById("nama-siswa").value;
+            const asalKota = document.getElementById("asal-kota").value;
+            const db = firebase.database();
+            const siswaRef = db.ref("siswa");
+
+            // Cek apakah sudah ada siswa dengan nama dan asal kota yang sama
+            siswaRef.orderByChild("nama").equalTo(namaSiswa).once("value", function(snapshot) {
+                let isDuplicate = false;
+
+                snapshot.forEach(function(childSnapshot) {
+                    const siswa = childSnapshot.val();
+                    if (siswa.asalKota === asalKota) {
+                        isDuplicate = true;
+                    }
+                });
+
+                if (isDuplicate) {
+                    alert("Siswa dengan nama dan asal kota yang sama sudah ada!");
+                } else {
+                    // Tambah data siswa baru jika tidak ada duplikasi
+                    siswaRef.push({
+                        nama: namaSiswa,
+                        asalKota: asalKota,
+                        tanggalDaftar: new Date().toISOString()
+                    }).then(() => {
+                        alert("Siswa berhasil ditambahkan!");
+                        document.getElementById("tambah-siswa-form").reset();
+                    }).catch((error) => {
+                        console.error("Error adding student: ", error);
+                    });
+                }
+            });
+        });
     </script>
-    <script src="scripts/tambah-siswa.js"></script>
 </body>
 </html>
