@@ -4,28 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Absensi Siswa</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+    <script>
+        const supabaseUrl = 'https://vhqitzlhbfcpdcbbarfx.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocWl0emxoYmZjcGRjYmJhcmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkwMDczMDIsImV4cCI6MjA0NDU4MzMwMn0.nuvs8f31rZbzpaZDtGf998uOcyDZjeYyUyLP_wKSp08';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 <body>
-    <h1>Selamat Datang di Absensi Siswa</h1>
-    <button onclick="window.location.href='daftar-siswa.html'">Daftar Siswa</button>
-    <button onclick="window.location.href='izin-pulang.html'">Izin Pulang</button>
-    <button onclick="window.location.href='tambah-siswa.html'">Tambah Siswa</button>
-
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
-            authDomain: "new-attendance-37fb7.firebaseapp.com",
-            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
-            projectId: "new-attendance-37fb7",
-            storageBucket: "new-attendance-37fb7.appspot.com",
-            messagingSenderId: "112170477897",
-            appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-    </script>
+    <h1>Selamat Datang di Aplikasi Absensi Siswa</h1>
+    <button onclick="location.href='tambah-siswa.html'">Tambah Siswa</button>
+    <button onclick="location.href='daftar-siswa.html'">Daftar Siswa</button>
+    <button onclick="location.href='izin-pulang.html'">Izin Pulang</button>
 </body>
 </html>
