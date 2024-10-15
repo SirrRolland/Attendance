@@ -1,22 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Siswa</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>Tambah Siswa</h1>
-    <form id="tambah-siswa-form">
-        <input type="text" id="nama-siswa" placeholder="Nama Lengkap" required>
-        <input type="text" id="asal-kota" placeholder="Asal Kota" required>
-        <button type="submit">Tambah</button>
-    </form>
-
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
     <script>
+        // Konfigurasi Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
             authDomain: "new-attendance-37fb7.firebaseapp.com",
@@ -26,41 +17,39 @@
             messagingSenderId: "112170477897",
             appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
         };
-
+        // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
+    <h1>Tambah Siswa</h1>
+    <form id="tambah-siswa-form">
+        <input type="text" id="nama" placeholder="Nama Lengkap" required>
+        <input type="text" id="asalKota" placeholder="Asal Kota" required>
+        <button type="submit">Tambah Siswa</button>
+    </form>
 
-        document.getElementById("tambah-siswa-form").addEventListener("submit", function(event) {
-            event.preventDefault();
-            
-            const namaSiswa = document.getElementById("nama-siswa").value;
-            const asalKota = document.getElementById("asal-kota").value;
+    <script>
+        document.getElementById('tambah-siswa-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah reload halaman
+            const nama = document.getElementById('nama').value;
+            const asalKota = document.getElementById('asalKota').value;
+
+            // Menyimpan data ke Firebase
             const db = firebase.database();
-            const siswaRef = db.ref("siswa");
-
-            // Cek apakah sudah ada siswa dengan nama dan asal kota yang sama
-            siswaRef.orderByChild("nama").equalTo(namaSiswa).once("value", function(snapshot) {
-                let isDuplicate = false;
-
-                snapshot.forEach(function(childSnapshot) {
-                    const siswa = childSnapshot.val();
-                    if (siswa.asalKota === asalKota) {
-                        isDuplicate = true;
-                    }
-                });
-
-                if (isDuplicate) {
-                    alert("Siswa dengan nama dan asal kota yang sama sudah ada!");
+            db.ref('siswa').orderByChild('nama').equalTo(nama).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    alert('Nama sudah ada dalam daftar siswa.');
                 } else {
-                    // Tambah data siswa baru jika tidak ada duplikasi
-                    siswaRef.push({
-                        nama: namaSiswa,
+                    db.ref('siswa').push({
+                        nama: nama,
                         asalKota: asalKota,
                         tanggalDaftar: new Date().toISOString()
                     }).then(() => {
-                        alert("Siswa berhasil ditambahkan!");
-                        document.getElementById("tambah-siswa-form").reset();
+                        alert('Siswa berhasil ditambahkan!');
+                        document.getElementById('tambah-siswa-form').reset(); // Reset form
                     }).catch((error) => {
-                        console.error("Error adding student: ", error);
+                        console.error('Error adding student: ', error);
                     });
                 }
             });
