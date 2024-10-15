@@ -68,46 +68,34 @@
     </form>
 
     <script>
-        // Konfigurasi Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
-            authDomain: "new-attendance-37fb7.firebaseapp.com",
-            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
-            projectId: "new-attendance-37fb7",
-            storageBucket: "new-attendance-37fb7.appspot.com",
-            messagingSenderId: "112170477897",
-            appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
-        };
-        // Inisialisasi Firebase
-        firebase.initializeApp(firebaseConfig);
+<script>
+    document.getElementById('tambah-siswa-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Mencegah reload halaman
+        const nama = document.getElementById('nama').value;
+        const asalKota = document.getElementById('asalKota').value;
+        const alertMessage = document.getElementById('alert-message');
 
-        document.getElementById('tambah-siswa-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Mencegah reload halaman
-            const nama = document.getElementById('nama').value;
-            const asalKota = document.getElementById('asalKota').value;
-            const alertMessage = document.getElementById('alert-message');
-
-            // Menyimpan data ke Firebase
-            const db = firebase.database();
-            db.ref('siswa').orderByChild('nama').equalTo(nama).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    alertMessage.textContent = 'Nama sudah ada dalam daftar siswa.';
-                } else {
-                    db.ref('siswa').push({
-                        nama: nama,
-                        asalKota: asalKota,
-                        tanggalDaftar: new Date().toISOString()
-                    }).then(() => {
-                        alertMessage.textContent = 'Siswa berhasil ditambahkan!';
-                        alertMessage.style.color = 'green';
-                        document.getElementById('tambah-siswa-form').reset(); // Reset form
-                    }).catch((error) => {
-                        console.error('Error adding student: ', error);
-                        alertMessage.textContent = 'Terjadi kesalahan saat menambahkan siswa.';
-                    });
-                }
-            });
+        // Menyimpan data ke Firebase
+        const db = firebase.database();
+        db.ref('siswa').orderByChild('nama').equalTo(nama).once('value', (snapshot) => {
+            if (snapshot.exists()) {
+                alertMessage.textContent = 'Nama sudah ada dalam daftar siswa.';
+            } else {
+                db.ref('siswa').push({
+                    nama: nama,
+                    asalKota: asalKota,
+                    tanggalDaftar: new Date().toISOString()
+                }).then(() => {
+                    alertMessage.textContent = 'Siswa berhasil ditambahkan!';
+                    alertMessage.style.color = 'green';
+                    document.getElementById('tambah-siswa-form').reset(); // Reset form
+                }).catch((error) => {
+                    console.error('Error adding student: ', error);
+                    alertMessage.textContent = 'Terjadi kesalahan saat menambahkan siswa.';
+                });
+            }
         });
-    </script>
+    });
+</script>
 </body>
 </html>
