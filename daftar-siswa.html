@@ -42,5 +42,20 @@
             });
         });
     </script>
+    <script>
+    const db = firebase.database();
+    db.ref('siswa').once('value', (snapshot) => {
+        const siswaTable = document.getElementById('siswa-table').getElementsByTagName('tbody')[0];
+        snapshot.forEach((childSnapshot) => {
+            const childData = childSnapshot.val();
+            const newRow = siswaTable.insertRow();
+            newRow.innerHTML = `
+                <td>${childData.nama}</td>
+                <td>${childData.asalKota}</td>
+                <td>${childData.tanggalDaftar}</td>
+            `;
+        });
+    });
+    </script>
 </body>
 </html>
