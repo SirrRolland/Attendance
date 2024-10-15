@@ -24,7 +24,23 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+
+        window.addEventListener("load", function() {
+            const db = firebase.database();
+            const siswaRef = db.ref("siswa");
+
+            siswaRef.on("value", function(snapshot) {
+                const siswaList = document.getElementById("siswa-list");
+                siswaList.innerHTML = "";
+
+                snapshot.forEach(function(childSnapshot) {
+                    const siswa = childSnapshot.val();
+                    const listItem = document.createElement("div");
+                    listItem.textContent = `Nama: ${siswa.nama} - Tanggal Daftar: ${siswa.tanggalDaftar}`;
+                    siswaList.appendChild(listItem);
+                });
+            });
+        });
     </script>
-    <script src="scripts/daftar-siswa.js"></script>
 </body>
 </html>
