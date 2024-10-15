@@ -4,89 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Izin Pulang</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+    <script>
+        const supabaseUrl = 'https://vhqitzlhbfcpdcbbarfx.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZocWl0emxoYmZjcGRjYmJhcmZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkwMDczMDIsImV4cCI6MjA0NDU4MzMwMn0.nuvs8f31rZbzpaZDtGf998uOcyDZjeYyUyLP_wKSp08';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function ambilDaftarSiswa() {
+            const { data, error } = await supabase
+                .from('siswa') // Ganti dengan nama tabel yang kamu buat
+                .select('*');
+
+            if (error) {
+                console.error("Error:", error);
+            } else {
+                const daftarElement = document.getElementById("daftarSiswa");
+                daftarElement.innerHTML = ''; // Kosongkan daftar sebelum menambah
+                data.forEach(siswa => {
+                    const li = document.createElement("li");
+                    li.textContent = `${siswa.nama} - ${siswa.asal_kota}`;
+
+                    // Cek izin pulang terakhir untuk menampilkan tombol yang sesuai
+                    const { data: izinData, error: izinError } = await supabase
+                        .from('izin_pulang')
+                        .select('*')
+                        .eq('siswa_id', siswa.id)
+                        .order('tanggal', { ascending: false })
+                        .limit(1);
+
+                    const izinPulangButton = document.createElement("button");
+                    if (izinError) {
+                        console.error("Error:", izinError);
+                    } else if (izinData.length > 0) {
+                        const lastIzin = new Date(izinData[0].tanggal);
+                        const today = new Date();
+                        const diffTime = Math.abs(today - lastIzin);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays < 14) {
+                            izinPulangButton.textContent = `Izin Pulang (Hanya bisa izin setelah ${new Date(lastIzin.setDate(lastIzin.getDate() + 14)).toLocaleDateString()})`;
+                            izinPulangButton.disabled = true; // Disable button
+                        } else {
+                            izinPulangButton.textContent = "Izin Pulang";
+                            izinPulangButton.onclick = () => izinPulang(siswa.id); // Tambahkan fungsi izin pulang
+                        }
+                    } else {
+                        izinPulangButton.textContent = "Izin Pulang";
+                        izinPulangButton.onclick = () => izinPulang(siswa.id); // Tambahkan fungsi izin pulang
+                    }
+
+                    li.appendChild(izinPulangButton);
+                    daftarElement.appendChild(li);
+                });
+            }
+        }
+
+        async function izinPulang(siswaId) {
+            // Logika untuk izin pulang siswa
+            // Simpan izin pulang ke database
+            const { data, error } = await supabase
+                .from('izin_pulang') // Ganti dengan nama tabel izin pulang yang kamu buat
+                .insert([{ siswa_id: siswaId, tanggal: new Date().toISOString() }]);
+
+            if (error) {
+                console.error("Error izin pulang:", error);
+            } else {
+                alert("Izin pulang berhasil!");
+                ambilDaftarSiswa(); // Refresh daftar siswa
+            }
+        }
+
+        window.onload = ambilDaftarSiswa;
+    </script>
 </head>
 <body>
     <h1>Izin Pulang</h1>
-    <div id="siswa-list"></div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
-            authDomain: "new-attendance-37fb7.firebaseapp.com",
-            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
-            projectId: "new-attendance-37fb7",
-            storageBucket: "new-attendance-37fb7.appspot.com",
-            messagingSenderId: "112170477897",
-            appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-
-        window.addEventListener("load", function() {
-            const db = firebase.database();
-            const siswaRef = db.ref("siswa");
-            const izinRef = db.ref("izin-pulang");
-            const siswaList = document.getElementById("siswa-list");
-
-            siswaRef.on("value", function(snapshot) {
-                siswaList.innerHTML = "";
-
-                snapshot.forEach(function(childSnapshot) {
-                    const siswa = childSnapshot.val();
-                    const siswaKey = childSnapshot.key;
-                    const listItem = document.createElement("div");
-                    const siswaName = document.createElement("span");
-                    siswaName.textContent = `Nama: ${siswa.nama}, Kota: ${siswa.asalKota}`;
-                    const izinButton = document.createElement("button");
-
-                    // Periksa apakah siswa sudah mengajukan izin sebelumnya
-                    izinRef.orderByChild("siswaKey").equalTo(siswaKey).once("value", function(izinSnapshot) {
-                        if (izinSnapshot.exists()) {
-                            izinSnapshot.forEach(function(izinChild) {
-                                const izinData = izinChild.val();
-                                const tanggalIzin = new Date(izinData.tanggalIzin);
-                                const hariIni = new Date();
-                                const selisihHari = Math.floor((hariIni - tanggalIzin) / (1000 * 60 * 60 * 24));
-
-                                if (selisihHari >= 14) {
-                                    izinButton.textContent = "Ajukan Izin";
-                                    izinButton.disabled = false;
-                                } else {
-                                    const tanggalBolehPulang = new Date(tanggalIzin);
-                                    tanggalBolehPulang.setDate(tanggalBolehPulang.getDate() + 14);
-                                    izinButton.textContent = `Boleh pulang setelah ${tanggalBolehPulang.toDateString()}`;
-                                    izinButton.disabled = true;
-                                }
-                            });
-                        } else {
-                            izinButton.textContent = "Ajukan Izin";
-                            izinButton.disabled = false;
-                        }
-
-                        izinButton.addEventListener("click", function() {
-                            izinRef.push({
-                                siswaKey: siswaKey,
-                                nama: siswa.nama,
-                                asalKota: siswa.asalKota,
-                                tanggalIzin: new Date().toISOString()
-                            }).then(() => {
-                                alert(`Izin pulang untuk ${siswa.nama} berhasil diajukan!`);
-                                window.location.reload();
-                            }).catch((error) => {
-                                console.error("Error submitting leave request: ", error);
-                            });
-                        });
-                    });
-
-                    listItem.appendChild(siswaName);
-                    listItem.appendChild(izinButton);
-                    siswaList.appendChild(listItem);
-                });
-            });
-        });
-    </script>
+    <ul id="daftarSiswa"></ul>
+    <button onclick="location.href='index.html'">Kembali</button>
 </body>
 </html>
