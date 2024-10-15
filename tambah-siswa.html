@@ -6,6 +6,67 @@
     <title>Tambah Siswa</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        form {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            margin: auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .alert {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tambah Siswa</h1>
+    <form id="tambah-siswa-form">
+        <input type="text" id="nama" placeholder="Nama Lengkap" required>
+        <input type="text" id="asalKota" placeholder="Asal Kota" required>
+        <button type="submit">Tambah Siswa</button>
+        <div class="alert" id="alert-message"></div>
+    </form>
+
     <script>
         // Konfigurasi Firebase
         const firebaseConfig = {
@@ -19,37 +80,30 @@
         };
         // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
-    </script>
-</head>
-<body>
-    <h1>Tambah Siswa</h1>
-    <form id="tambah-siswa-form">
-        <input type="text" id="nama" placeholder="Nama Lengkap" required>
-        <input type="text" id="asalKota" placeholder="Asal Kota" required>
-        <button type="submit">Tambah Siswa</button>
-    </form>
 
-    <script>
         document.getElementById('tambah-siswa-form').addEventListener('submit', function(event) {
             event.preventDefault(); // Mencegah reload halaman
             const nama = document.getElementById('nama').value;
             const asalKota = document.getElementById('asalKota').value;
+            const alertMessage = document.getElementById('alert-message');
 
             // Menyimpan data ke Firebase
             const db = firebase.database();
             db.ref('siswa').orderByChild('nama').equalTo(nama).once('value', (snapshot) => {
                 if (snapshot.exists()) {
-                    alert('Nama sudah ada dalam daftar siswa.');
+                    alertMessage.textContent = 'Nama sudah ada dalam daftar siswa.';
                 } else {
                     db.ref('siswa').push({
                         nama: nama,
                         asalKota: asalKota,
                         tanggalDaftar: new Date().toISOString()
                     }).then(() => {
-                        alert('Siswa berhasil ditambahkan!');
+                        alertMessage.textContent = 'Siswa berhasil ditambahkan!';
+                        alertMessage.style.color = 'green';
                         document.getElementById('tambah-siswa-form').reset(); // Reset form
                     }).catch((error) => {
                         console.error('Error adding student: ', error);
+                        alertMessage.textContent = 'Terjadi kesalahan saat menambahkan siswa.';
                     });
                 }
             });
