@@ -1,114 +1,90 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Izin Pulang</title>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Ajukan Izin Pulang</h1>
-    <form id="leave-form">
-        <input type="text" id="leaveStudentName" placeholder="Nama Siswa" required>
-        <input type="text" id="leaveReason" placeholder="Alasan" required>
-        <button type="submit">Ajukan Izin Pulang</button>
-    </form>
-    <button onclick="window.location.href='index.html'">Kembali</button>
+    <h1>Izin Pulang</h1>
+    <div id="siswa-list"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
     <script>
-        // Konfigurasi Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCqcq-UD2tG0d3xGQjcQ1ADYFHsHuBI_O0",
+            authDomain: "new-attendance-37fb7.firebaseapp.com",
+            databaseURL: "https://new-attendance-37fb7-default-rtdb.firebaseio.com",
+            projectId: "new-attendance-37fb7",
+            storageBucket: "new-attendance-37fb7.appspot.com",
+            messagingSenderId: "112170477897",
+            appId: "1:112170477897:android:b7a39805bf546a1d9ad298"
         };
 
-        // Inisialisasi Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        firebase.initializeApp(firebaseConfig);
 
-        // Mengajukan izin pulang
-        document.getElementById('leave-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const studentName = document.getElementById('leaveStudentName').value;
-            const reason = document.getElementById('leaveReason').value;
-            const leaveDate = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+        window.addEventListener("load", function() {
+            const db = firebase.database();
+            const siswaRef = db.ref("siswa");
+            const izinRef = db.ref("izin-pulang");
+            const siswaList = document.getElementById("siswa-list");
 
-            // Cari siswa berdasarkan nama
-            database.ref('students/').orderByChild('name').equalTo(studentName).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    snapshot.forEach(childSnapshot => {
-                        const studentId = childSnapshot.key;
+            siswaRef.on("value", function(snapshot) {
+                siswaList.innerHTML = "";
 
-                        // Simpan izin pulang ke Firebase
-                        const leaveRef = database.ref('students/' + studentId + '/leaveRequests/').push();
-                        leaveRef.set({
-                            date: leaveDate,
-                            reason: reason,
-                            status: "pending"
-                        }).then(() => {
-                            alert('Izin pulang berhasil diajukan!');
-                            document.getElementById('leaveStudentName').value = ''; // Reset input
-                            document.getElementById('leaveReason').value = '';
-                        }).catch((error) => {
-                            console.error('Error submitting leave request: ', error);
+                snapshot.forEach(function(childSnapshot) {
+                    const siswa = childSnapshot.val();
+                    const siswaKey = childSnapshot.key;
+                    const listItem = document.createElement("div");
+                    const siswaName = document.createElement("span");
+                    siswaName.textContent = `Nama: ${siswa.nama}, Kota: ${siswa.asalKota}`;
+                    const izinButton = document.createElement("button");
+
+                    // Periksa apakah siswa sudah mengajukan izin sebelumnya
+                    izinRef.orderByChild("siswaKey").equalTo(siswaKey).once("value", function(izinSnapshot) {
+                        if (izinSnapshot.exists()) {
+                            izinSnapshot.forEach(function(izinChild) {
+                                const izinData = izinChild.val();
+                                const tanggalIzin = new Date(izinData.tanggalIzin);
+                                const hariIni = new Date();
+                                const selisihHari = Math.floor((hariIni - tanggalIzin) / (1000 * 60 * 60 * 24));
+
+                                if (selisihHari >= 14) {
+                                    izinButton.textContent = "Ajukan Izin";
+                                    izinButton.disabled = false;
+                                } else {
+                                    const tanggalBolehPulang = new Date(tanggalIzin);
+                                    tanggalBolehPulang.setDate(tanggalBolehPulang.getDate() + 14);
+                                    izinButton.textContent = `Boleh pulang setelah ${tanggalBolehPulang.toDateString()}`;
+                                    izinButton.disabled = true;
+                                }
+                            });
+                        } else {
+                            izinButton.textContent = "Ajukan Izin";
+                            izinButton.disabled = false;
+                        }
+
+                        izinButton.addEventListener("click", function() {
+                            izinRef.push({
+                                siswaKey: siswaKey,
+                                nama: siswa.nama,
+                                asalKota: siswa.asalKota,
+                                tanggalIzin: new Date().toISOString()
+                            }).then(() => {
+                                alert(`Izin pulang untuk ${siswa.nama} berhasil diajukan!`);
+                                window.location.reload();
+                            }).catch((error) => {
+                                console.error("Error submitting leave request: ", error);
+                            });
                         });
                     });
-                } else {
-                    alert('Siswa tidak ditemukan.');
-                }
-            });
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Izin Pulang</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Form Izin Pulang</h1>
-        <form id="leave-form">
-            <input type="text" id="studentName" placeholder="Nama Siswa" required>
-            <input type="text" id="reason" placeholder="Alasan" required>
-            <button type="submit">Ajukan Izin</button>
-        </form>
-    </div>
-    <script>
-        // Konfigurasi Firebase
-        const firebaseConfig = {
-            // Tempelkan konfigurasi Firebase Anda di sini
-        };
 
-        // Inisialisasi Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Menangani form submission
-        document.getElementById('leave-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const studentName = document.getElementById('studentName').value;
-            const reason = document.getElementById('reason').value;
-
-            // Simpan izin pulang ke Firebase
-            database.ref('leaveRequests/').push({
-                name: studentName,
-                reason: reason,
-                timestamp: Date.now()
-            }).then(() => {
-                alert('Izin pulang berhasil diajukan!');
-                document.getElementById('studentName').value = '';
-                document.getElementById('reason').value = '';
+                    listItem.appendChild(siswaName);
+                    listItem.appendChild(izinButton);
+                    siswaList.appendChild(listItem);
+                });
             });
         });
     </script>
