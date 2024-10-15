@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izin Pulang</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Form Izin Pulang</h1>
+        <form id="leave-form">
+            <input type="text" id="studentName" placeholder="Nama Siswa" required>
+            <input type="text" id="reason" placeholder="Alasan" required>
+            <button type="submit">Ajukan Izin</button>
+        </form>
+    </div>
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            // Tempelkan konfigurasi Firebase Anda di sini
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Menangani form submission
+        document.getElementById('leave-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const studentName = document.getElementById('studentName').value;
+            const reason = document.getElementById('reason').value;
+
+            // Simpan izin pulang ke Firebase
+            database.ref('leaveRequests/').push({
+                name: studentName,
+                reason: reason,
+                timestamp: Date.now()
+            }).then(() => {
+                alert('Izin pulang berhasil diajukan!');
+                document.getElementById('studentName').value = '';
+                document.getElementById('reason').value = '';
+            });
+        });
+    </script>
+</body>
+</html>
